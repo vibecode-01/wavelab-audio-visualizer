@@ -1,0 +1,1924 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b12">
+<title>WAVELAB — Audio Visualization Studio</title>
+
+<style>
+:root {
+  --bg:#090b12;
+  --panel:#111522;
+  --panel2:#171e2e;
+  --border:#29334a;
+  --text:#f2f4fb;
+  --muted:#8995aa;
+  --accent:#79e9d0;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  background:
+    radial-gradient(ellipse at 15% 0%,#172b40 0,transparent 38%),
+    radial-gradient(ellipse at 85% 0%,#28203e 0,transparent 35%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  font-size:14px;
+}
+
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+
+.app {
+  max-width:1600px;
+  margin:auto;
+  padding:22px;
+}
+
+header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.brand {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo {
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:linear-gradient(135deg,#78f2d0,#58aaff,#b77bff);
+  color:#08121b;
+  font-weight:900;
+  font-size:21px;
+  box-shadow:0 0 25px #67d8d440;
+}
+
+.brand-name {
+  font-size:19px;
+  font-weight:850;
+  letter-spacing:4px;
+}
+
+.brand-name span { color:#83e8dd; }
+
+.brand-sub {
+  color:var(--muted);
+  font-size:10px;
+  margin-top:4px;
+  letter-spacing:1.5px;
+}
+
+.status {
+  border:1px solid var(--border);
+  padding:9px 13px;
+  border-radius:25px;
+  color:#b4c0d2;
+  font-size:11px;
+}
+
+.status-dot {
+  display:inline-block;
+  width:7px;
+  height:7px;
+  background:#647083;
+  border-radius:50%;
+  margin-right:7px;
+}
+
+.status-dot.live {
+  background:#62efb1;
+  box-shadow:0 0 12px #62efb1;
+}
+
+.layout {
+  display:grid;
+  grid-template-columns:225px minmax(0,1fr) 245px;
+  gap:15px;
+}
+
+.panel {
+  background:linear-gradient(160deg,#151b2b,#101522);
+  border:1px solid var(--border);
+  border-radius:16px;
+  min-width:0;
+}
+
+.sidebar { padding:16px 13px; }
+
+.section-title {
+  color:#9caac2;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.6px;
+  margin:5px 7px 13px;
+}
+
+.card {
+  background:linear-gradient(135deg,#1c2639,#151c2a);
+  border:1px solid #303d56;
+  border-radius:12px;
+  padding:13px;
+  margin-bottom:16px;
+}
+
+.card h3 {
+  font-size:12px;
+  margin:0 0 7px;
+}
+
+.card p {
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.6;
+  margin:0;
+}
+
+.btn {
+  background:#1b2538;
+  border:1px solid #35415b;
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:9px;
+  font-size:11px;
+  font-weight:650;
+  transition:.2s;
+}
+
+.btn:hover {
+  background:#27364c;
+  border-color:#6b9cb5;
+}
+
+.btn.primary {
+  background:linear-gradient(110deg,#72edcf,#62baf5);
+  color:#07151c;
+  border:0;
+}
+
+.btn.primary:hover { filter:brightness(1.1); }
+
+.btn:disabled {
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+.source-buttons {
+  display:grid;
+  gap:8px;
+  margin-top:13px;
+}
+
+.source-buttons button { text-align:left; }
+
+#fileInput { display:none; }
+
+.file-name {
+  color:#aebbd0;
+  font-size:10px;
+  margin-top:10px;
+  overflow-wrap:anywhere;
+}
+
+.note {
+  color:#8290a7;
+  font-size:9px;
+  line-height:1.7;
+}
+
+.divider {
+  height:1px;
+  background:var(--border);
+  margin:17px 0;
+}
+
+.modes {
+  display:grid;
+  gap:6px;
+}
+
+.mode-btn {
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:transparent;
+  color:#aab7cb;
+  border:1px solid transparent;
+  border-radius:9px;
+  font-size:11px;
+  text-align:left;
+}
+
+.mode-btn:hover { background:#1a2435; }
+
+.mode-btn.active {
+  background:linear-gradient(100deg,#183d49,#282749);
+  border-color:#447d91;
+  color:white;
+  box-shadow:inset 3px 0 #75eed4;
+}
+
+.mode-btn small {
+  color:#7f8da8;
+  font-size:9px;
+}
+
+.center {
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  min-height:690px;
+}
+
+.stage-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.eyebrow {
+  color:#91a0b8;
+  font-size:9px;
+  letter-spacing:1.8px;
+  font-weight:800;
+}
+
+.stage-title {
+  font-size:19px;
+  font-weight:750;
+  margin-top:6px;
+}
+
+.stage-description {
+  color:var(--muted);
+  font-size:10px;
+  margin-top:5px;
+}
+
+.stage-actions { display:flex; gap:7px; }
+
+.icon-btn {
+  width:37px;
+  height:37px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:#1b2437;
+  color:white;
+}
+
+.visualizer {
+  height:440px;
+  min-height:350px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid #303c55;
+  border-radius:13px;
+  background:#070911;
+}
+
+canvas {
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+.canvas-label {
+  position:absolute;
+  top:15px;
+  left:17px;
+  color:#a9b8cb;
+  font-size:9px;
+  letter-spacing:1.5px;
+  pointer-events:none;
+}
+
+.empty-state {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  pointer-events:none;
+  padding:20px;
+}
+
+.empty-state strong {
+  display:block;
+  font-size:14px;
+  margin-bottom:7px;
+}
+
+.empty-state span {
+  color:#8491a6;
+  font-size:11px;
+  line-height:1.6;
+}
+
+.hidden { display:none !important; }
+
+.meters {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+  margin-top:12px;
+}
+
+.meter {
+  background:#151c2b;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+}
+
+.meter-label {
+  color:#94a2b8;
+  font-size:9px;
+  letter-spacing:1px;
+}
+
+.meter-value {
+  font-size:17px;
+  font-weight:750;
+  margin-top:6px;
+}
+
+.meter-track {
+  height:3px;
+  background:#283146;
+  border-radius:5px;
+  margin-top:8px;
+  overflow:hidden;
+}
+
+.meter-fill {
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,#74e9d0,#51baff,#bd80ff,#ff84b8);
+  transition:width .12s;
+}
+
+.player {
+  background:linear-gradient(120deg,#171f30,#1d2034);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px;
+  margin-top:12px;
+}
+
+.track-row {
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.album {
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#6ef0cf,#54a9ff,#bd7bff);
+  color:#101522;
+  display:grid;
+  place-items:center;
+  font-size:18px;
+}
+
+.track-info { flex:1; min-width:0; }
+
+.track-title {
+  font-size:11px;
+  font-weight:700;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.track-subtitle {
+  font-size:9px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.player-controls {
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.play-btn {
+  height:36px;
+  width:36px;
+  border-radius:50%;
+  border:0;
+  background:linear-gradient(135deg,#73f0d0,#6daeff);
+  color:#06141b;
+  font-weight:900;
+}
+
+.control-range {
+  width:100%;
+  accent-color:#75dfd0;
+  cursor:pointer;
+}
+
+.volume { width:70px; }
+
+.seek-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:13px;
+  color:#99a6ba;
+  font-size:9px;
+}
+
+.seek-row input { flex:1; }
+
+.right { padding:16px 14px; }
+
+.group { margin-bottom:23px; }
+
+.group-title {
+  color:#a0aec5;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.5px;
+  margin-bottom:13px;
+}
+
+.control-line {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#c0cce0;
+  font-size:11px;
+  margin-bottom:9px;
+}
+
+.control-line output { color:#83ebdc; }
+
+.palette-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.palette-btn {
+  height:37px;
+  border:2px solid transparent;
+  border-radius:8px;
+  color:white;
+  font-size:10px;
+  font-weight:700;
+  text-shadow:0 1px 4px #000;
+}
+
+.palette-btn.active {
+  border-color:white;
+  box-shadow:0 0 0 2px #788aa3;
+}
+
+.palette-aurora {
+  background:linear-gradient(110deg,#65edbd,#30d8e9,#598cff,#bd73ef,#f17ab9);
+}
+
+.palette-prism {
+  background:linear-gradient(110deg,#ff597b,#ffa35b,#f8dc66,#64e2ac,#4bd7f1,#9a79ff);
+}
+
+.palette-sunset {
+  background:linear-gradient(110deg,#ffcf6b,#ff875c,#f15899,#ba73eb,#668dff);
+}
+
+.palette-glacier {
+  background:linear-gradient(110deg,#65efff,#48b9ff,#7187ff,#bc7bff,#f28dcd);
+}
+
+select {
+  width:100%;
+  padding:10px;
+  background:#1b2538;
+  border:1px solid #394660;
+  color:white;
+  border-radius:8px;
+  font-size:10px;
+}
+
+.tips {
+  background:#182337;
+  border:1px solid #34415b;
+  padding:11px;
+  border-radius:9px;
+  color:#a5b2c7;
+  font-size:9px;
+  line-height:1.7;
+}
+
+footer {
+  color:#77859b;
+  padding:17px 3px;
+  font-size:10px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+@media(max-width:1100px) {
+  .layout { grid-template-columns:200px 1fr; }
+  .right {
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+  }
+}
+
+@media(max-width:700px) {
+  .app { padding:12px; }
+  .layout { grid-template-columns:1fr; }
+  .center { order:1; min-height:580px; }
+  .left { order:2; }
+  .right { order:3; grid-column:auto; display:block; }
+  .visualizer { height:340px; }
+  .meters { grid-template-columns:repeat(2,1fr); }
+  .track-row { flex-wrap:wrap; }
+  .player-controls { margin-left:auto; }
+  footer { flex-direction:column; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <div class="brand">
+    <div class="logo">W</div>
+    <div>
+      <div class="brand-name">WAVE<span>LAB</span></div>
+      <div class="brand-sub">AUDIO VISUALIZATION STUDIO</div>
+    </div>
+  </div>
+  <div class="status">
+    <i class="status-dot" id="statusDot"></i>
+    <span id="statusText">STUDIO IDLE</span>
+  </div>
+</header>
+
+<main class="layout">
+
+<!-- LEFT PANEL -->
+<aside class="panel sidebar">
+
+  <div class="section-title">AUDIO SOURCE</div>
+
+  <div class="card">
+    <h3>Bring your sound</h3>
+    <p>Import music from your device or connect a live microphone.</p>
+
+    <div class="source-buttons">
+      <button class="btn primary" id="uploadBtn">＋ Import audio file</button>
+      <input id="fileInput" type="file" accept="audio/*">
+      <button class="btn" id="micBtn">◉ Use microphone</button>
+      <button class="btn" id="stopBtn" disabled>■ Stop input</button>
+    </div>
+
+    <div class="file-name" id="fileName">No audio loaded</div>
+  </div>
+
+  <p class="note">
+    Audio is analysed locally in your browser.
+    Microphone access requires permission.
+  </p>
+
+  <div class="divider"></div>
+
+  <div class="section-title">VISUALIZATION MODES</div>
+
+  <div class="modes" id="modes">
+    <button class="mode-btn active" data-mode="spectrum">Spectrum Bars <small>01</small></button>
+    <button class="mode-btn" data-mode="wave">Waveform <small>02</small></button>
+    <button class="mode-btn" data-mode="mirror">Mirror Spectrum <small>03</small></button>
+    <button class="mode-btn" data-mode="radial">Radial Spectrum <small>04</small></button>
+    <button class="mode-btn" data-mode="orbit">Orbit Ring <small>05</small></button>
+    <button class="mode-btn" data-mode="curve">Spectral Curve <small>06</small></button>
+    <button class="mode-btn" data-mode="scope">Oscilloscope <small>07</small></button>
+  </div>
+
+</aside>
+
+<!-- CENTER PANEL -->
+<section class="panel center">
+
+  <div class="stage-head">
+    <div>
+      <div class="eyebrow">LIVE ANALYSIS / <span id="modeNumber">01</span></div>
+      <div class="stage-title" id="modeTitle">Spectrum Bars</div>
+      <div class="stage-description" id="modeDescription">
+        Frequency energy across the audible spectrum.
+      </div>
+    </div>
+
+    <div class="stage-actions">
+      <button class="icon-btn" id="exportBtn" title="Export image">⇩</button>
+      <button class="icon-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+
+  <div class="visualizer" id="visualizerWrap">
+    <canvas id="visualizer"></canvas>
+    <div class="canvas-label" id="sourceLabel">NO INPUT / WAITING FOR AUDIO</div>
+
+    <div class="empty-state" id="emptyState">
+      <div>
+        <strong>Your sound, visualized.</strong>
+        <span>
+          Import an audio file or connect your microphone
+          to activate the visualizer.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="meters">
+    <div class="meter">
+      <div class="meter-label">LOW / BASS</div>
+      <div class="meter-value" id="bassValue">—</div>
+      <div class="meter-track"><div class="meter-fill" id="bassBar"></div></div>
+    </div>
+    <div class="meter">
+      <div class="meter-label">MID / BODY</div>
+      <div class="meter-value" id="midValue">—</div>
+      <div class="meter-track"><div class="meter-fill" id="midBar"></div></div>
+    </div>
+    <div class="meter">
+      <div class="meter-label">HIGH / AIR</div>
+      <div class="meter-value" id="highValue">—</div>
+      <div class="meter-track"><div class="meter-fill" id="highBar"></div></div>
+    </div>
+    <div class="meter">
+      <div class="meter-label">SIGNAL LEVEL</div>
+      <div class="meter-value" id="levelValue">—</div>
+      <div class="meter-track"><div class="meter-fill" id="levelBar"></div></div>
+    </div>
+  </div>
+
+  <div class="player">
+    <div class="track-row">
+      <div class="album">♫</div>
+
+      <div class="track-info">
+        <div class="track-title" id="trackTitle">No track selected</div>
+        <div class="track-subtitle" id="trackSubtitle">LOCAL AUDIO PLAYER</div>
+      </div>
+
+      <div class="player-controls">
+        <button class="play-btn" id="playBtn" disabled>▶</button>
+        <input class="control-range volume" id="volume" type="range" min="0" max="100" value="80">
+        <span id="timeDisplay" style="font-size:9px;color:#a8b5c8">00:00 / 00:00</span>
+      </div>
+    </div>
+
+    <div class="seek-row">
+      <span id="currentTime">00:00</span>
+      <input class="control-range" id="seek" type="range" min="0" max="1000" value="0" disabled>
+      <span id="duration">00:00</span>
+    </div>
+  </div>
+
+  <audio id="audio" preload="metadata"></audio>
+
+</section>
+
+<!-- RIGHT PANEL -->
+<aside class="panel right sidebar">
+
+  <div class="group">
+    <div class="group-title">COLOUR PALETTE</div>
+
+    <div class="palette-grid">
+      <button class="palette-btn palette-aurora active" data-palette="aurora">Aurora</button>
+      <button class="palette-btn palette-prism" data-palette="prism">Prism</button>
+      <button class="palette-btn palette-sunset" data-palette="sunset">Sunset</button>
+      <button class="palette-btn palette-glacier" data-palette="glacier">Glacier</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">SIGNAL RESPONSE</div>
+
+    <div class="control-line">
+      <label for="sensitivity">Sensitivity</label>
+      <output id="sensitivityValue">100%</output>
+    </div>
+    <input class="control-range" type="range" id="sensitivity" min="30" max="180" value="100">
+
+    <div class="control-line" style="margin-top:18px">
+      <label for="smoothing">Smoothing</label>
+      <output id="smoothingValue">75%</output>
+    </div>
+    <input class="control-range" type="range" id="smoothing" min="0" max="95" value="75">
+  </div>
+
+  <div class="group">
+    <div class="group-title">ANALYSIS QUALITY</div>
+    <div class="control-line"><label for="fft">FFT resolution</label></div>
+    <select id="fft">
+      <option value="1024">1024 · Fast</option>
+      <option value="2048" selected>2048 · Balanced</option>
+      <option value="4096">4096 · Detailed</option>
+      <option value="8192">8192 · Fine detail</option>
+    </select>
+  </div>
+
+  <div class="tips">
+    <strong>Studio tip</strong><br>
+    Use headphones while testing microphone input.
+    Stop microphone access before switching audio sources.
+    The visualizer does not upload your recordings.
+  </div>
+
+</aside>
+
+</main>
+
+<footer>
+  <span>WAVELAB · INTERACTIVE AUDIO VISUALIZATION STUDIO</span>
+  <span>HTML · CSS · JAVASCRIPT · WEB AUDIO API</span>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ------------------------------
+   1. BASIC ELEMENTS
+-------------------------------- */
+
+const $ = id => document.getElementById(id);
+
+const canvas = $("visualizer");
+const ctx = canvas.getContext("2d");
+const audio = $("audio");
+
+let audioContext = null;
+let fileAnalyser = null;
+let micAnalyser = null;
+let mediaSource = null;
+let micSource = null;
+let micStream = null;
+let activeAnalyser = null;
+let audioUrl = null;
+
+let frequencyData = null;
+let waveformData = null;
+
+let mode = "spectrum";
+let paletteName = "aurora";
+let sensitivity = 1;
+let smoothing = 0.75;
+
+let width = 0;
+let height = 0;
+
+/* ------------------------------
+   2. COLOUR PALETTES
+-------------------------------- */
+
+const palettes = {
+  aurora: [
+    "#68F5C4",
+    "#35DDE4",
+    "#4D9FFF",
+    "#887BFF",
+    "#E77CF6",
+    "#FF83B8"
+  ],
+
+  prism: [
+    "#FF547A",
+    "#FF9856",
+    "#FFD45F",
+    "#6CE5A5",
+    "#43D7F3",
+    "#8585FF",
+    "#E879EA"
+  ],
+
+  sunset: [
+    "#FFD36D",
+    "#FF875D",
+    "#F15F9B",
+    "#BB73EC",
+    "#6E8DFF"
+  ],
+
+  glacier: [
+    "#70F0FF",
+    "#50B9FF",
+    "#738AFF",
+    "#B879FF",
+    "#F18DD5"
+  ]
+};
+
+function getColour(t) {
+  const colours = palettes[paletteName];
+
+  const position = Math.max(0,Math.min(.9999,t)) *
+                   (colours.length - 1);
+
+  const index = Math.floor(position);
+  const fraction = position - index;
+
+  const a = colours[index];
+  const b = colours[index + 1];
+
+  const parse = colour => [
+    parseInt(colour.slice(1,3),16),
+    parseInt(colour.slice(3,5),16),
+    parseInt(colour.slice(5,7),16)
+  ];
+
+  const ca = parse(a);
+  const cb = parse(b);
+
+  const r = Math.round(ca[0] + (cb[0]-ca[0])*fraction);
+  const g = Math.round(ca[1] + (cb[1]-ca[1])*fraction);
+  const b2 = Math.round(ca[2] + (cb[2]-ca[2])*fraction);
+
+  return `rgb(${r},${g},${b2})`;
+}
+
+function makeGradient(x1,y1,x2,y2) {
+  const gradient = ctx.createLinearGradient(x1,y1,x2,y2);
+
+  const colours = palettes[paletteName];
+
+  colours.forEach((colour,index) => {
+    gradient.addColorStop(index/(colours.length-1),colour);
+  });
+
+  return gradient;
+}
+
+/* ------------------------------
+   3. CANVAS SIZE
+-------------------------------- */
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1,2);
+
+  width = rect.width;
+  height = rect.height;
+
+  canvas.width = Math.round(width*dpr);
+  canvas.height = Math.round(height*dpr);
+
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+window.addEventListener("resize",resizeCanvas);
+
+resizeCanvas();
+
+/* ------------------------------
+   4. AUDIO INITIALIZATION
+-------------------------------- */
+
+async function initializeAudio() {
+  if(audioContext) {
+    if(audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+    return;
+  }
+
+  const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
+
+  if(!AudioContextClass) {
+    alert("Your browser does not support Web Audio API.");
+    throw new Error("Web Audio API unavailable");
+  }
+
+  audioContext = new AudioContextClass();
+
+  fileAnalyser = audioContext.createAnalyser();
+
+  fileAnalyser.fftSize = 2048;
+  fileAnalyser.smoothingTimeConstant = smoothing;
+
+  mediaSource = audioContext.createMediaElementSource(audio);
+
+  mediaSource.connect(fileAnalyser);
+  fileAnalyser.connect(audioContext.destination);
+
+  if(audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+}
+
+/* ------------------------------
+   5. AUDIO FILE UPLOAD
+-------------------------------- */
+
+$("uploadBtn").addEventListener("click",()=>{
+  $("fileInput").click();
+});
+
+$("fileInput").addEventListener("change",async event=>{
+  const file = event.target.files[0];
+
+  if(!file) return;
+
+  if(!file.type.startsWith("audio/")) {
+    alert("Please select an audio file.");
+    return;
+  }
+
+  try {
+    stopMicrophone(false);
+
+    await initializeAudio();
+
+    if(audioUrl) URL.revokeObjectURL(audioUrl);
+
+    audioUrl = URL.createObjectURL(file);
+
+    audio.src = audioUrl;
+    audio.load();
+
+    activeAnalyser = fileAnalyser;
+
+    $("fileName").textContent = file.name;
+    $("trackTitle").textContent = file.name;
+    $("trackSubtitle").textContent = "LOCAL AUDIO FILE";
+
+    $("sourceLabel").textContent = "UPLOADED AUDIO";
+    $("emptyState").classList.add("hidden");
+
+    $("playBtn").disabled = false;
+    $("stopBtn").disabled = false;
+    $("seek").disabled = false;
+
+    setStatus("AUDIO LOADED");
+
+    await audio.play();
+
+    $("playBtn").textContent = "Ⅱ";
+
+  } catch(error) {
+    console.error(error);
+    alert("Could not play this file. Try MP3 or WAV.");
+  }
+
+  event.target.value = "";
+});
+
+/* ------------------------------
+   6. MICROPHONE INPUT
+-------------------------------- */
+
+$("micBtn").addEventListener("click",async()=>{
+  try {
+    if(!navigator.mediaDevices ||
+       !navigator.mediaDevices.getUserMedia) {
+      alert("Microphone access requires HTTPS or localhost.");
+      return;
+    }
+
+    stopMicrophone(false);
+
+    audio.pause();
+
+    await initializeAudio();
+
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio:{
+        echoCancellation:true,
+        noiseSuppression:true,
+        autoGainControl:true
+      }
+    });
+
+    micAnalyser = audioContext.createAnalyser();
+
+    micAnalyser.fftSize = Number($("fft").value);
+    micAnalyser.smoothingTimeConstant = smoothing;
+
+    micSource = audioContext.createMediaStreamSource(micStream);
+
+    micSource.connect(micAnalyser);
+
+    activeAnalyser = micAnalyser;
+
+    $("emptyState").classList.add("hidden");
+
+    $("fileName").textContent = "Live microphone";
+    $("trackTitle").textContent = "Live microphone";
+    $("trackSubtitle").textContent = "LIVE INPUT";
+
+    $("sourceLabel").textContent = "MICROPHONE INPUT";
+
+    $("playBtn").disabled = true;
+    $("seek").disabled = true;
+
+    $("stopBtn").disabled = false;
+
+    setStatus("MICROPHONE ACTIVE");
+
+  } catch(error) {
+    console.error(error);
+    alert("Microphone permission was denied or unavailable.");
+  }
+});
+
+function stopMicrophone(showIdle = true) {
+  if(micSource) {
+    micSource.disconnect();
+    micSource = null;
+  }
+
+  if(micStream) {
+    micStream.getTracks().forEach(track=>track.stop());
+    micStream = null;
+  }
+
+  micAnalyser = null;
+
+  if(activeAnalyser && activeAnalyser !== fileAnalyser) {
+    activeAnalyser = null;
+  }
+
+  if(showIdle && !audio.src) {
+    showEmpty();
+  }
+}
+
+/* ------------------------------
+   7. STOP INPUT
+-------------------------------- */
+
+$("stopBtn").addEventListener("click",()=>{
+  stopMicrophone(false);
+
+  audio.pause();
+
+  activeAnalyser = null;
+
+  audio.currentTime = 0;
+
+  $("playBtn").textContent = "▶";
+  $("playBtn").disabled = true;
+  $("seek").disabled = true;
+
+  $("stopBtn").disabled = true;
+
+  showEmpty();
+  setStatus("STUDIO IDLE");
+});
+
+/* ------------------------------
+   8. PLAYER CONTROLS
+-------------------------------- */
+
+$("playBtn").addEventListener("click",async()=>{
+  if(!audio.src) return;
+
+  await initializeAudio();
+
+  if(audio.paused) {
+    try {
+      await audio.play();
+      $("playBtn").textContent = "Ⅱ";
+    } catch(error) {
+      console.error(error);
+    }
+  } else {
+    audio.pause();
+    $("playBtn").textContent = "▶";
+  }
+});
+
+$("volume").addEventListener("input",event=>{
+  audio.volume = Number(event.target.value)/100;
+});
+
+$("seek").addEventListener("input",event=>{
+  if(Number.isFinite(audio.duration) && audio.duration > 0) {
+    audio.currentTime =
+      (Number(event.target.value)/1000)*audio.duration;
+  }
+});
+
+audio.addEventListener("play",()=>{
+  $("playBtn").textContent = "Ⅱ";
+});
+
+audio.addEventListener("pause",()=>{
+  $("playBtn").textContent = "▶";
+});
+
+audio.addEventListener("loadedmetadata",()=>{
+  $("duration").textContent = formatTime(audio.duration);
+  $("timeDisplay").textContent =
+    "00:00 / " + formatTime(audio.duration);
+});
+
+audio.addEventListener("timeupdate",()=>{
+  if(!audio.duration || !Number.isFinite(audio.duration)) return;
+
+  $("seek").value =
+    (audio.currentTime/audio.duration)*1000;
+
+  $("currentTime").textContent = formatTime(audio.currentTime);
+
+  $("timeDisplay").textContent =
+    formatTime(audio.currentTime) +
+    " / " +
+    formatTime(audio.duration);
+});
+
+audio.addEventListener("ended",()=>{
+  $("playBtn").textContent = "▶";
+});
+
+function formatTime(seconds) {
+  if(!Number.isFinite(seconds)) return "00:00";
+
+  const minutes = Math.floor(seconds/60);
+  const remainder = Math.floor(seconds%60);
+
+  return String(minutes).padStart(2,"0") +
+         ":" +
+         String(remainder).padStart(2,"0");
+}
+
+/* ------------------------------
+   9. VISUALIZATION MODES
+-------------------------------- */
+
+const modeDetails = {
+  spectrum:{
+    title:"Spectrum Bars",
+    description:"Frequency energy across the audible spectrum."
+  },
+
+  wave:{
+    title:"Waveform",
+    description:"The amplitude of your audio signal over time."
+  },
+
+  mirror:{
+    title:"Mirror Spectrum",
+    description:"A symmetrical frequency visualization."
+  },
+
+  radial:{
+    title:"Radial Spectrum",
+    description:"Frequency energy arranged around a circle."
+  },
+
+  orbit:{
+    title:"Orbit Ring",
+    description:"A continuous audio-reactive circular waveform."
+  },
+
+  curve:{
+    title:"Spectral Curve",
+    description:"A smooth frequency-response curve."
+  },
+
+  scope:{
+    title:"Oscilloscope",
+    description:"A triggered signal trace with measurement grid."
+  }
+};
+
+document.querySelectorAll(".mode-btn").forEach(button=>{
+  button.addEventListener("click",()=>{
+    mode = button.dataset.mode;
+
+    document.querySelectorAll(".mode-btn").forEach(item=>{
+      item.classList.toggle("active",item===button);
+    });
+
+    const detail = modeDetails[mode];
+
+    $("modeTitle").textContent = detail.title;
+    $("modeDescription").textContent = detail.description;
+
+    const number = [...document.querySelectorAll(".mode-btn")]
+      .findIndex(item=>item.dataset.mode===mode)+1;
+
+    $("modeNumber").textContent =
+      String(number).padStart(2,"0");
+  });
+});
+
+/* ------------------------------
+   10. PALETTE CONTROLS
+-------------------------------- */
+
+document.querySelectorAll(".palette-btn").forEach(button=>{
+  button.addEventListener("click",()=>{
+    paletteName = button.dataset.palette;
+
+    document.querySelectorAll(".palette-btn").forEach(item=>{
+      item.classList.toggle("active",item===button);
+    });
+  });
+});
+
+/* ------------------------------
+   11. ANALYSIS SETTINGS
+-------------------------------- */
+
+$("sensitivity").addEventListener("input",event=>{
+  sensitivity = Number(event.target.value)/100;
+
+  $("sensitivityValue").textContent =
+    event.target.value+"%";
+});
+
+$("smoothing").addEventListener("input",event=>{
+  smoothing = Number(event.target.value)/100;
+
+  $("smoothingValue").textContent =
+    event.target.value+"%";
+
+  if(fileAnalyser) {
+    fileAnalyser.smoothingTimeConstant = smoothing;
+  }
+
+  if(micAnalyser) {
+    micAnalyser.smoothingTimeConstant = smoothing;
+  }
+});
+
+$("fft").addEventListener("change",event=>{
+  const size = Number(event.target.value);
+
+  if(fileAnalyser) fileAnalyser.fftSize = size;
+  if(micAnalyser) micAnalyser.fftSize = size;
+
+  if(activeAnalyser) {
+    frequencyData =
+      new Uint8Array(activeAnalyser.frequencyBinCount);
+
+    waveformData =
+      new Uint8Array(activeAnalyser.fftSize);
+  }
+});
+
+/* ------------------------------
+   12. BACKGROUND GRID
+-------------------------------- */
+
+function drawBackground() {
+  ctx.fillStyle = "#070911";
+  ctx.fillRect(0,0,width,height);
+
+  const glow = ctx.createRadialGradient(
+    width*.5,height*.5,10,
+    width*.5,height*.5,height*.7
+  );
+
+  glow.addColorStop(0,"#17233b55");
+  glow.addColorStop(1,"#07091100");
+
+  ctx.fillStyle = glow;
+  ctx.fillRect(0,0,width,height);
+
+  ctx.strokeStyle = "#a9b8d00b";
+  ctx.lineWidth = 1;
+
+  for(let x=0;x<width;x+=40) {
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,height);
+    ctx.stroke();
+  }
+
+  for(let y=0;y<height;y+=40) {
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(width,y);
+    ctx.stroke();
+  }
+
+  const edge = ctx.createLinearGradient(0,0,width,0);
+
+  edge.addColorStop(0,"#00000044");
+  edge.addColorStop(.5,"#00000000");
+  edge.addColorStop(1,"#00000044");
+
+  ctx.fillStyle=edge;
+  ctx.fillRect(0,0,width,height);
+}
+
+/* ------------------------------
+   13. AUDIO DATA
+-------------------------------- */
+
+function readAudioData() {
+  if(!activeAnalyser) return false;
+
+  if(!frequencyData ||
+     frequencyData.length !== activeAnalyser.frequencyBinCount) {
+
+    frequencyData =
+      new Uint8Array(activeAnalyser.frequencyBinCount);
+
+    waveformData =
+      new Uint8Array(activeAnalyser.fftSize);
+  }
+
+  activeAnalyser.getByteFrequencyData(frequencyData);
+  activeAnalyser.getByteTimeDomainData(waveformData);
+
+  return true;
+}
+
+function frequencyValue(index) {
+  return (frequencyData[index]||0)/255;
+}
+
+function averageRange(start,end) {
+  if(!frequencyData) return 0;
+
+  let sum=0;
+  let count=0;
+
+  for(let i=start;i<end && i<frequencyData.length;i++) {
+    sum += frequencyData[i];
+    count++;
+  }
+
+  return count ? sum/count/255 : 0;
+}
+
+/* ------------------------------
+   14. SPECTRUM BARS
+-------------------------------- */
+
+function drawSpectrum() {
+  const count=85;
+  const gap=3;
+  const barWidth=(width-60)/count;
+
+  const gradient=makeGradient(0,height,0,0);
+
+  ctx.save();
+  ctx.shadowBlur=18;
+  ctx.shadowColor=getColour(.55);
+
+  for(let i=0;i<count;i++) {
+    const index=Math.floor(
+      Math.pow(i/count,2.1)*(frequencyData.length-1)
+    );
+
+    const value=Math.min(
+      1,
+      frequencyValue(index)*sensitivity*1.8
+    );
+
+    const barHeight=value*(height*.68);
+    const x=30+i*barWidth;
+    const y=height-48-barHeight;
+
+    ctx.fillStyle=gradient;
+
+    ctx.globalAlpha=.65+value*.35;
+
+    ctx.beginPath();
+    ctx.roundRect(
+      x,
+      y,
+      Math.max(1,barWidth-gap),
+      Math.max(2,barHeight),
+      4
+    );
+    ctx.fill();
+
+    ctx.globalAlpha=1;
+  }
+
+  ctx.restore();
+}
+
+/* ------------------------------
+   15. WAVEFORM
+-------------------------------- */
+
+function drawWaveform() {
+  const length=waveformData.length;
+  const middle=height*.52;
+
+  const gradient=makeGradient(0,0,width,0);
+
+  const points=[];
+
+  for(let i=0;i<length;i+=3) {
+    const value=(waveformData[i]-128)/128;
+
+    points.push({
+      x:(i/length)*width,
+      y:middle-value*height*.37*sensitivity
+    });
+  }
+
+  if(points.length<2) return;
+
+  // Filled waveform
+  ctx.beginPath();
+  ctx.moveTo(points[0].x,middle);
+
+  points.forEach(p=>ctx.lineTo(p.x,p.y));
+
+  ctx.lineTo(points[points.length-1].x,middle);
+  ctx.closePath();
+
+  const fill=ctx.createLinearGradient(0,height*.15,0,height*.9);
+
+  fill.addColorStop(0,"#4ce3ff55");
+  fill.addColorStop(.5,"#8b78ff30");
+  fill.addColorStop(1,"#e77cf600");
+
+  ctx.fillStyle=fill;
+  ctx.fill();
+
+  // Main waveform line
+  ctx.beginPath();
+  ctx.moveTo(points[0].x,points[0].y);
+
+  points.forEach(p=>ctx.lineTo(p.x,p.y));
+
+  ctx.strokeStyle=gradient;
+  ctx.lineWidth=2.7;
+  ctx.shadowBlur=19;
+  ctx.shadowColor=getColour(.4);
+  ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Centre guide
+  ctx.strokeStyle="#ffffff20";
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(0,middle);
+  ctx.lineTo(width,middle);
+  ctx.stroke();
+}
+
+/* ------------------------------
+   16. MIRROR SPECTRUM
+-------------------------------- */
+
+function drawMirror() {
+  const count=100;
+  const gap=2;
+  const barWidth=(width-60)/count;
+  const middle=height*.5;
+
+  const gradient=makeGradient(0,0,0,height);
+
+  ctx.save();
+  ctx.shadowBlur=14;
+  ctx.shadowColor=getColour(.45);
+
+  for(let i=0;i<count;i++) {
+    const index=Math.floor(i/count*(frequencyData.length-1));
+
+    const value=Math.min(1,frequencyValue(index)*sensitivity*1.7);
+    const h=value*(height*.38);
+
+    const x=30+i*barWidth;
+
+    ctx.fillStyle=gradient;
+    ctx.globalAlpha=.8;
+
+    ctx.fillRect(x,middle-h,barWidth-gap,h);
+    ctx.fillRect(x,middle,barWidth-gap,h);
+  }
+
+  ctx.restore();
+
+  ctx.strokeStyle="#ffffff35";
+  ctx.beginPath();
+  ctx.moveTo(20,middle);
+  ctx.lineTo(width-20,middle);
+  ctx.stroke();
+}
+
+/* ------------------------------
+   17. RADIAL SPECTRUM
+-------------------------------- */
+
+function drawRadial() {
+  const cx=width/2;
+  const cy=height/2;
+
+  const base=Math.min(width,height)*.17;
+  const count=160;
+
+  const gradient=makeGradient(0,0,width,height);
+
+  ctx.save();
+  ctx.lineCap="round";
+  ctx.shadowBlur=12;
+  ctx.shadowColor=getColour(.5);
+
+  for(let i=0;i<count;i++) {
+    const angle=i/count*Math.PI*2-Math.PI/2;
+
+    const index=Math.floor(
+      Math.pow(i/count,1.6)*(frequencyData.length-1)
+    );
+
+    const value=Math.min(1,frequencyValue(index)*sensitivity*2);
+
+    const length=12+value*Math.min(width,height)*.23;
+
+    const x1=cx+Math.cos(angle)*base;
+    const y1=cy+Math.sin(angle)*base;
+
+    const x2=cx+Math.cos(angle)*(base+length);
+    const y2=cy+Math.sin(angle)*(base+length);
+
+    ctx.strokeStyle=gradient;
+    ctx.lineWidth=2+value*2;
+
+    ctx.globalAlpha=.55+value*.45;
+
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(cx,cy,base-7,0,Math.PI*2);
+  ctx.strokeStyle="#ffffff33";
+  ctx.lineWidth=1;
+  ctx.stroke();
+}
+
+/* ------------------------------
+   18. ORBIT RING
+-------------------------------- */
+
+function drawOrbit() {
+  const cx=width/2;
+  const cy=height/2;
+  const base=Math.min(width,height)*.27;
+
+  const gradient=makeGradient(0,0,width,height);
+
+  ctx.save();
+
+  ctx.shadowBlur=23;
+  ctx.shadowColor=getColour(.45);
+
+  ctx.beginPath();
+
+  for(let i=0;i<=waveformData.length;i+=2) {
+    const index=i%waveformData.length;
+    const angle=(i/waveformData.length)*Math.PI*2;
+
+    const value=(waveformData[index]-128)/128;
+
+    const radius=base+value*base*.22*sensitivity;
+
+    const x=cx+Math.cos(angle)*radius;
+    const y=cy+Math.sin(angle)*radius;
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+
+  ctx.closePath();
+  ctx.strokeStyle=gradient;
+  ctx.lineWidth=2.8;
+  ctx.stroke();
+
+  ctx.shadowBlur=0;
+
+  // Inner glowing ring
+  const average=averageRange(2,60);
+
+  ctx.beginPath();
+  ctx.arc(cx,cy,base*.53+average*10,0,Math.PI*2);
+  ctx.strokeStyle=getColour(.58);
+  ctx.globalAlpha=.75;
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/* ------------------------------
+   19. SPECTRAL CURVE
+-------------------------------- */
+
+function drawCurve() {
+  const count=220;
+  const points=[];
+
+  for(let i=0;i<count;i++) {
+    const index=Math.floor(
+      Math.pow(i/count,2.0)*(frequencyData.length-1)
+    );
+
+    const value=Math.min(
+      1,
+      frequencyValue(index)*sensitivity*1.9
+    );
+
+    points.push({
+      x:20+i/(count-1)*(width-40),
+      y:height-35-value*(height*.73)
+    });
+  }
+
+  const gradient=makeGradient(0,0,width,0);
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x,points[0].y);
+
+  for(let i=1;i<points.length-1;i++) {
+    const midX=(points[i].x+points[i+1].x)/2;
+    const midY=(points[i].y+points[i+1].y)/2;
+
+    ctx.quadraticCurveTo(
+      points[i].x,
+      points[i].y,
+      midX,
+      midY
+    );
+  }
+
+  ctx.lineTo(points[points.length-1].x,points[points.length-1].y);
+
+  const linePath= new Path2D();
+  linePath.addPath(new Path2D());
+
+  ctx.strokeStyle=gradient;
+  ctx.lineWidth=3;
+  ctx.shadowBlur=18;
+  ctx.shadowColor=getColour(.55);
+  ctx.stroke();
+
+  ctx.shadowBlur=0;
+
+  ctx.lineTo(width-20,height-35);
+  ctx.lineTo(20,height-35);
+  ctx.closePath();
+
+  const fill=ctx.createLinearGradient(0,0,0,height);
+
+  fill.addColorStop(0,"#70e5f255");
+  fill.addColorStop(.55,"#967aff24");
+  fill.addColorStop(1,"#f17bb500");
+
+  ctx.fillStyle=fill;
+  ctx.fill();
+}
+
+/* ------------------------------
+   20. OSCILLOSCOPE
+-------------------------------- */
+
+function drawScope() {
+  // Measurement grid
+  ctx.save();
+
+  ctx.strokeStyle="#52617c35";
+  ctx.lineWidth=1;
+
+  for(let x=0;x<=width;x+=width/10) {
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,height);
+    ctx.stroke();
+  }
+
+  for(let y=0;y<=height;y+=height/8) {
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(width,y);
+    ctx.stroke();
+  }
+
+  // Major axes
+  ctx.strokeStyle="#a5b5cc66";
+
+  ctx.beginPath();
+  ctx.moveTo(0,height/2);
+  ctx.lineTo(width,height/2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(width/2,0);
+  ctx.lineTo(width/2,height);
+  ctx.stroke();
+
+  // Rising-zero-crossing trigger
+  let start=0;
+
+  for(let i=0;i<waveformData.length-1;i++) {
+    if(waveformData[i]<128 && waveformData[i+1]>=128) {
+      start=i;
+      break;
+    }
+  }
+
+  const samples=600;
+  const step=Math.max(1,Math.floor(waveformData.length/samples));
+
+  const gradient=makeGradient(0,0,width,0);
+
+  ctx.beginPath();
+
+  for(let i=0;i<samples;i++) {
+    const index=(start+i*step)%waveformData.length;
+    const value=(waveformData[index]-128)/128;
+
+    const x=i/(samples-1)*width;
+    const y=height/2-value*height*.37*sensitivity;
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+
+  ctx.strokeStyle=gradient;
+  ctx.lineWidth=2;
+  ctx.shadowBlur=15;
+  ctx.shadowColor=getColour(.4);
+  ctx.stroke();
+
+  ctx.restore();
+
+  ctx.fillStyle="#a9b9d2";
+  ctx.font="10px Arial";
+  ctx.fillText("TRIGGERED SIGNAL",15,20);
+}
+
+/* ------------------------------
+   21. MODE DRAWING
+-------------------------------- */
+
+const renderers = {
+  spectrum:drawSpectrum,
+  wave:drawWaveform,
+  mirror:drawMirror,
+  radial:drawRadial,
+  orbit:drawOrbit,
+  curve:drawCurve,
+  scope:drawScope
+};
+
+/* ------------------------------
+   22. METERS
+-------------------------------- */
+
+function updateMeters() {
+  if(!activeAnalyser) return;
+
+  const bass=averageRange(1,12);
+  const mid=averageRange(12,100);
+  const high=averageRange(100,400);
+
+  let sum=0;
+
+  for(let i=0;i<waveformData.length;i++) {
+    const value=(waveformData[i]-128)/128;
+    sum+=value*value;
+  }
+
+  const rms=Math.sqrt(sum/waveformData.length);
+
+  $("bassValue").textContent=Math.round(bass*100)+"%";
+  $("midValue").textContent=Math.round(mid*100)+"%";
+  $("highValue").textContent=Math.round(high*100)+"%";
+  $("levelValue").textContent=Math.round(rms*100)+"%";
+
+  $("bassBar").style.width=(bass*100)+"%";
+  $("midBar").style.width=(mid*100)+"%";
+  $("highBar").style.width=(high*100)+"%";
+  $("levelBar").style.width=(rms*100)+"%";
+}
+
+/* ------------------------------
+   23. MAIN ANIMATION LOOP
+-------------------------------- */
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  drawBackground();
+
+  if(!readAudioData()) {
+    $("emptyState").classList.remove("hidden");
+    return;
+  }
+
+  $("emptyState").classList.add("hidden");
+
+  renderers[mode]();
+
+  updateMeters();
+}
+
+animate();
+
+/* ------------------------------
+   24. STATUS
+-------------------------------- */
+
+function setStatus(message) {
+  $("statusText").textContent=message;
+
+  $("statusDot").classList.toggle(
+    "live",
+    message!=="STUDIO IDLE"
+  );
+}
+
+function showEmpty() {
+  activeAnalyser=null;
+
+  $("emptyState").classList.remove("hidden");
+
+  $("sourceLabel").textContent="NO INPUT / WAITING FOR AUDIO";
+
+  $("fileName").textContent="No audio loaded";
+  $("trackTitle").textContent="No track selected";
+  $("trackSubtitle").textContent="LOCAL AUDIO PLAYER";
+
+  $("bassValue").textContent="—";
+  $("midValue").textContent="—";
+  $("highValue").textContent="—";
+  $("levelValue").textContent="—";
+
+  ["bassBar","midBar","highBar","levelBar"].forEach(id=>{
+    $(id).style.width="0";
+  });
+}
+
+/* ------------------------------
+   25. EXPORT VISUALIZATION
+-------------------------------- */
+
+$("exportBtn").addEventListener("click",()=>{
+  const link=document.createElement("a");
+
+  link.download="WAVELAB-visualization.png";
+  link.href=canvas.toDataURL("image/png");
+
+  link.click();
+});
+
+/* ------------------------------
+   26. FULLSCREEN
+-------------------------------- */
+
+$("fullscreenBtn").addEventListener("click",async()=>{
+  const stage=$("visualizerWrap");
+
+  try {
+    if(!document.fullscreenElement) {
+      await stage.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+
+    resizeCanvas();
+  } catch(error) {
+    console.error(error);
+  }
+});
+
+document.addEventListener("fullscreenchange",resizeCanvas);
+
+</script>
+</body>
+</html>
