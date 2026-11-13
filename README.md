@@ -1,20 +1,19 @@
 
 # WAVELAB — Audio Visualization Studio
 
-WAVELAB is a browser-based interactive audio visualization studio that transforms music and live microphone input into real-time visual experiences.
+WAVELAB is an interactive browser-based audio visualization platform with a Python Flask backend.
 
 ## Features
 
-- Upload local audio files.
-- Live microphone input.
-- Seven visualization modes.
+- Upload audio files.
+- Live microphone visualization.
+- Seven real-time visualization modes.
 - Four customizable colour palettes.
-- Adjustable audio sensitivity.
-- Adjustable smoothing.
-- FFT resolution controls.
-- Real-time audio analysis.
+- Adjustable sensitivity and smoothing.
+- FFT resolution selection.
 - Fullscreen visualization.
-- Export visualization as PNG.
+- Export visualizations as PNG.
+- Python-powered WAV signal analysis.
 
 ## Visualization Modes
 
@@ -26,38 +25,42 @@ WAVELAB is a browser-based interactive audio visualization studio that transform
 6. Spectral Curve
 7. Oscilloscope
 
-## Technologies Used
+## Technologies
 
+- Python 3.13
+- Flask
 - HTML5
 - CSS3
 - JavaScript
 - Web Audio API
-- HTML Canvas API
-- GitHub Pages
+- Canvas API
 
-## How to Use
+## Python Backend
 
-1. Open the WAVELAB website.
-2. Select Import Audio File.
-3. Choose an audio file from your device.
-4. Select a visualization mode.
-5. Customize colours and sensitivity.
-6. Enjoy real-time audio visualization.
+The Flask backend provides:
 
-Alternatively, select Use Microphone and grant browser permission.
+- Audio duration analysis.
+- Sampling frequency detection.
+- Channel detection.
+- Bit-depth detection.
+- Peak amplitude calculation.
+- RMS amplitude calculation.
+- Clipping estimation.
+
+Python analysis currently supports uncompressed PCM WAV files up to 20 MB.
+
+Other browser-supported audio files can still be played and visualized.
 
 ## Privacy
 
-Audio files are processed locally in the browser. WAVELAB does not require an external audio-processing server.
+Uploaded WAV files are processed in server memory and are not permanently stored.
+
+Live microphone processing occurs locally in the browser.
 
 ## Hosting
 
-This project is hosted using GitHub Pages.
+Frontend and Python backend are hosted together using Render.
 
-## Project Purpose
-
-Developed as a student project to demonstrate browser-based audio processing, frequency analysis, real-time visualization and interactive web development.
-
----
+GitHub is used for source-code management.
 
 **WAVELAB — Turn Sound Into Visuals.**
